@@ -59,6 +59,9 @@ on:
           - aapsclient2Debug
           - pumpcontrolRelease
           - pumpcontrolDebug
+      runTests:
+        description: 'Run plugins:constraints unit tests before building (the full suite also runs on push via unit-tests.yml)'
+        type: boolean
 
 jobs:
   build:
@@ -255,6 +258,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
+        if: ${{ github.event.inputs.runTests == 'true' }}
         run: |
               ./gradlew :plugins:constraints:testAndroidHostTest \
               -Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC -Xss1024m" \
@@ -265,7 +269,7 @@ jobs:
               -Dorg.gradle.caching=true
 
       - name: Upload unit test report
-        if: always()
+        if: ${{ github.event.inputs.runTests == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
